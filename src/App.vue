@@ -1,28 +1,48 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <v-overlay :value="loader"></v-overlay>
+    <v-content>
+      <v-pagination
+              @input="fetchUsers"
+              v-model="page"
+              :length="pagination.total_pages"
+              :total-visible="7"
+      ></v-pagination>
+      <users-list></users-list>
+    </v-content>
+
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import { mapActions, mapGetters } from 'vuex'
 export default {
-  name: 'app',
+  name: 'App',
+
   components: {
-    HelloWorld
+    usersList: () => import('@/components/usersList')
+  },
+  data: () => ({
+    page: 1
+  }),
+  computed: {
+    ...mapGetters({
+      pagination: 'app/pagination',
+      loader: 'app/loader'
+    })
+  },
+  methods: {
+    ...mapActions({
+      fetchData: 'app/fetchData',
+      toggleLoader: 'app/toggleLoader'
+    }),
+    fetchUsers(page) {
+      this.toggleLoader(true)
+      this.fetchData({ query: 'users', params: { page }})
+    }
+  },
+  created() {
+    this.fetchUsers(this.page)
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
